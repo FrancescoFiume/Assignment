@@ -1,6 +1,6 @@
+using System.Reflection;
 using Assignment.Data.Interfaces;
 using Assignment.Data.Models;
-using Microsoft.EntityFrameworkCore;
 
 namespace Assignment.Data.Collections;
 
@@ -83,25 +83,30 @@ public class CustomerCollection:IObjectCollection<Customers>
     {
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        
+
         var customerToUpdateCache = GetById(customer.Id);
         var customerToUpdateDb = context.Customers.FirstOrDefault(customer => customer.Id == customer.Id);
-        
+
         if (customerToUpdateDb != null && customerToUpdateCache != null)
         {
-            //cache update
-            customerToUpdateCache.FirstName = customer.FirstName;
-            customerToUpdateCache.LastName = customer.LastName;
-            customerToUpdateCache.Email = customer.Email;
-            
-            //db update
-            customerToUpdateDb.FirstName = customer.FirstName;
-            customerToUpdateDb.LastName = customer.LastName;
-            customerToUpdateDb.Email = customer.Email;
-            context.SaveChanges();
-        }
-    }
+            Type userType = customer.GetType();
+            PropertyInfo[] properties = userType.GetProperties();
+            foreach (var property in properties)
+            {
+                if (property.PropertyType == typeof(string) && property.GetValue(customer) as string != "")
+                {
+                   
+                    var toUpdateProperty = typeof(Customers).GetProperty(property.Name);
+                    toUpdateProperty.SetValue(customerToUpdateCache, property.GetValue(customer));
+                    toUpdateProperty.SetValue(customerToUpdateDb, property.GetValue(customer));
 
+                }
+            }
+        }
+
+        context.SaveChanges();
+    }
+    
     /// <summary>
     /// Deletes an entry in both cache and bd from the id
     /// </summary>
