@@ -20,6 +20,7 @@ builder.Services.AddEntityFrameworkNpgsql()
             o=> o.MapEnum<Books.Availability>("availability") 
         );
     });
+
 //Singleton Area
 builder.Services.AddSingleton<CustomerCollection>();
 var app = builder.Build();
