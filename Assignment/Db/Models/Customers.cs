@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Assignment.Data.Models;
 
-public class Customers
+public class Customers:IObjectDb
 {
     public int Id { get; set; }
     

@@ -1,6 +1,6 @@
 namespace Assignment.Data.Models;
 
-public class Reservations
+public class Reservations:IObjectDb
 {
     public int Id { get; set; }
     public int CustomerId { get; set; }

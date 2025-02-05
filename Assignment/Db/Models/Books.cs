@@ -2,7 +2,7 @@ using System.Reflection;
 
 namespace Assignment.Data.Models;
 
-public class Books
+public class Books:IObjectDb
 {
     public required int Id { get; set; } 
     public required string Title { get; set; }
