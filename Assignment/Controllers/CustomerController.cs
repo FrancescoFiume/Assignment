@@ -1,4 +1,7 @@
+using Assignment.CustomExceptions;
 using Assignment.Data.Collections;
+using Assignment.DataCheck;
+using Assignment.DataCheck.Checks;
 using Assignment.DTO;
 using Microsoft.AspNetCore.Mvc;
 
@@ -34,9 +37,28 @@ public class CustomerController :ControllerBase
         return Ok(user);
     }
 
+    /// <summary>
+    /// Ciao sto documentando
+    /// </summary>
+    /// <param name="newCustomer"></param>
+    /// <returns></returns>
     [HttpPost("/new")]
     public IActionResult Add(NewCustomer newCustomer)
     {
+        try
+        {
+            new Manager(new EmailCheck(_customerCollection), newCustomer).Check();
+        }
+        catch (InvalidEmailFormatExceptions)
+        {
+            _logger.LogError("Invalid email format");
+            return BadRequest();
+        }
+        catch (DuplicatedMailException)
+        {
+            _logger.LogError("Duplicated mail");
+            return BadRequest();
+        }
         
         return Ok();
     }
