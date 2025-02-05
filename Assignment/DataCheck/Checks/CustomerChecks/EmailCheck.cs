@@ -1,9 +1,8 @@
 using System.Text.RegularExpressions;
 using Assignment.CustomExceptions;
 using Assignment.Data.Collections;
-using Assignment.Data.Interfaces;
 
-namespace Assignment.DataCheck.Checks;
+namespace Assignment.DataCheck.Checks.CustomerChecks;
 
 public class EmailCheck
 {
