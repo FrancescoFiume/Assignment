@@ -1,5 +1,7 @@
+using Assignment.Data;
 using Assignment.Data.Interfaces;
-using Assignment.DataCheck.Checks;
+using Assignment.Data.Models;
+using Assignment.DataCheck.Checks.CustomerChecks;
 using Assignment.DTO;
 
 namespace Assignment.DataCheck;
@@ -7,19 +9,32 @@ namespace Assignment.DataCheck;
 public class Manager
 {
     private readonly EmailCheck _emailCheck;
-    private NewCustomer _customer;
+    private IObjectDb _toCheck;
 
 
 
-    public Manager(EmailCheck emailCheck, NewCustomer customer)
+    public Manager(EmailCheck emailCheck, IObjectDb toCheck)
     {
         _emailCheck = emailCheck;
-        _customer = customer;
+        _toCheck = toCheck;
     }
 
     public void Check()
     {
-        _emailCheck.Check(_customer.Email);
+        switch (_toCheck)
+        {
+            case (Customers customer):
+            {
+                
+                _emailCheck.Check(customer.Email);
+                break;
+            }
+            case (Books book):
+            {
+                break;
+            }
+        }
+        
         
        
 
