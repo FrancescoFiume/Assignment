@@ -1,0 +1,9 @@
+soluzione.sln
+.idea
+.vscode
+Assignment/obj
+Assignment/bin
+Assignment/appsettings.json
+Assignment/appsettings.Development.json
+Assignment/Properties
+soluzione.sln.DotSettings.user
