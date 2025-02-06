@@ -164,8 +164,9 @@ public class BookCollection :IObjectCollection<Books>
 
         if (IsCacheUsed)
         {
-            
-            _cache.Remove(toDelete);
+            int index =_cache.FindIndex(book => book.Id == id);
+
+            _cache.RemoveAt(index);
         }
         context.Books.Remove(toDelete);
         context.SaveChanges();

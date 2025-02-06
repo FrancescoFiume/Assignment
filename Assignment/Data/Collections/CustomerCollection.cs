@@ -139,8 +139,9 @@ public class CustomerCollection:IObjectCollection<Customers>
 
         if (IsCacheUsed)
         {
-            
-            _cache.Remove(customerToDelete);
+            int index =_cache.FindIndex(c => c.Id == id);
+
+            _cache.RemoveAt(index);
         }
         context.Customers.Remove(customerToDelete);
         context.SaveChanges();
