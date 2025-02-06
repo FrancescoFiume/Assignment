@@ -151,7 +151,7 @@ public class BookController: ControllerBase
             _logger.LogError("Id not found");
             return NotFound("Id not found");
         }
-        catch (InvalidISBNException)
+        catch (InvalidIsbnException)
         {
             _logger.LogError("ISBN invalid");
             return BadRequest("ISBN invalid");
@@ -225,7 +225,7 @@ public class BookController: ControllerBase
 
     private void HandleIsbnValidation(Books book)
     {
-        new Manager(new ISBNCheck(book.ISBN), book).Check();
+        new Manager(new IsbnCheck(book.ISBN), book).Check();
     }
     
 }

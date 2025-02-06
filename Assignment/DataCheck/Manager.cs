@@ -12,7 +12,7 @@ public class Manager
 {
     private readonly EmailCheck _emailCheck;
     private IObjectDb _toCheck;
-    private ISBNCheck _isbnCheck;
+    private IsbnCheck _isbnCheck;
 
 
 /// <summary>
@@ -20,13 +20,19 @@ public class Manager
 /// </summary>
 /// <param name="emailCheck">Email Checker</param>
 /// <param name="toCheck">Class that implements IObjectDb that needs the checkin'</param>
+ #pragma warning disable CS8618
     public Manager(EmailCheck emailCheck, IObjectDb toCheck)
     {
         _emailCheck = emailCheck;
         _toCheck = toCheck;
     }
-
-    public Manager(ISBNCheck isbnCheck, IObjectDb toCheck)
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="isbnCheck">isbn Checker</param>
+    /// <param name="toCheck">Class that implements IObjectDb that needs the checkin'</param>
+    #pragma warning disable CS8618
+    public Manager(IsbnCheck isbnCheck, IObjectDb toCheck)
     {
         _toCheck = toCheck;
         _isbnCheck = isbnCheck;
