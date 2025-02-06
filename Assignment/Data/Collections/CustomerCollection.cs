@@ -106,7 +106,7 @@ public class CustomerCollection:IObjectCollection<Customers>
 
         //can safely skip null checks, this parameter already passed the GetById check
         
-        var customerToUpdateDb = GetById(customer.Id);
+        var customerToUpdateDb = context.Customers.Find(customer.Id);
         
         Type userType = customer.GetType();
         PropertyInfo[] properties = userType.GetProperties();
