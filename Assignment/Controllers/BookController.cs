@@ -187,7 +187,7 @@ public class BookController: ControllerBase
         }
     }
     
-        /// <summary>
+    /// <summary>
     /// Change one or more properties on the underlying object
     /// </summary>
     /// <param name="updateBook">
