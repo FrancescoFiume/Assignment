@@ -38,7 +38,7 @@ public class CustomerCollection:IObjectCollection<Customers>
     }
     /// <summary>
     /// The reasoning behind isChacheUsed it to have some sort of protection when the project is freshly started.<br />
-    /// If Id dind't have this but I had cache.Count() to check if the cache was empty then if you add an item to the
+    /// If I had cache.Count() to check if the cache was empty then if you add an item to the
     /// collection before having the cache to get the data from the db then you would be stuck with a cache of a lenght 1 which
     /// would never update its content.
     /// </summary>
