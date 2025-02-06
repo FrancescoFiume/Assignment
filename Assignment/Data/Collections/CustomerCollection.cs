@@ -106,7 +106,7 @@ public class CustomerCollection:IObjectCollection<Customers>
 
         //can safely skip null checks, this parameter already passed the GetById check
         
-        var customerToUpdateDb = context.Customers.First(c => c.Id == customer.Id);
+        var customerToUpdateDb = GetById(customer.Id);
         
         Type userType = customer.GetType();
         PropertyInfo[] properties = userType.GetProperties();
@@ -135,7 +135,7 @@ public class CustomerCollection:IObjectCollection<Customers>
     {
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var customerToDelete = context.Customers.First(customer => customer.Id == id);
+        var customerToDelete = GetById(id);
 
         if (IsCacheUsed)
         {

@@ -105,7 +105,7 @@ public class BookCollection :IObjectCollection<Books>
 
         //can safely skip null checks, this parameter already passed the GetById check
         
-        var bookToUpdateDb = context.Books.First(c => c.Id == book.Id);
+        var bookToUpdateDb = GetById(book.Id);
         Type userType = book.GetType();
         PropertyInfo[] properties = userType.GetProperties();
         foreach (var property in properties)
@@ -160,7 +160,7 @@ public class BookCollection :IObjectCollection<Books>
     {
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var toDelete = context.Books.First(book => book.Id == id);
+        var toDelete = GetById(id);
 
         if (IsCacheUsed)
         {
