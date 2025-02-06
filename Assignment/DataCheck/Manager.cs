@@ -1,5 +1,6 @@
 using Assignment.Data;
 using Assignment.Data.Models;
+using Assignment.DataCheck.Checks.BookChecks;
 using Assignment.DataCheck.Checks.CustomerChecks;
 
 namespace Assignment.DataCheck;
@@ -11,6 +12,7 @@ public class Manager
 {
     private readonly EmailCheck _emailCheck;
     private IObjectDb _toCheck;
+    private ISBNCheck _isbnCheck;
 
 
 /// <summary>
@@ -23,6 +25,13 @@ public class Manager
         _emailCheck = emailCheck;
         _toCheck = toCheck;
     }
+
+    public Manager(ISBNCheck isbnCheck, IObjectDb toCheck)
+    {
+        _toCheck = toCheck;
+        _isbnCheck = isbnCheck;
+    }
+
 
 /// <summary>
 /// This function is pretty straightforward, it's just a switch case which tries to cast the<br/>
@@ -38,11 +47,12 @@ public class Manager
                 
                 _emailCheck.Check(customer.Email);
                 //EmailCheck is the only one that made sense to me.
-                break;
+                return;
             }
             case (Books book):
             {
-                break;
+                _isbnCheck.Check();
+                return;
             }
         }
         
