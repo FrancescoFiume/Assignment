@@ -113,7 +113,7 @@ public class BookCollection :IObjectCollection<Books>
             if (property.PropertyType == typeof(string) && property.GetValue(book) as string != "")
             {
                
-                var toUpdateProperty = typeof(Customers).GetProperty(property.Name);
+                var toUpdateProperty = typeof(Books).GetProperty(property.Name);
                 toUpdateProperty!.SetValue(bookToUpdateDb, property.GetValue(book));
             }
             
@@ -131,7 +131,7 @@ public class BookCollection :IObjectCollection<Books>
     /// if the book is available it changes to unavailable, and vice versa.
     /// </summary>
     /// <param name="id">just needs the id of the book</param>
-    public void ChangeAvailability(int id)
+    public void ToggleAvailability(int id)
     {
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
