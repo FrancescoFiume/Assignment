@@ -8,7 +8,6 @@ public class Books:IObjectDb
     public required string Author { get; set; }
     
     public required string ISBN { get; set; }
-    public required int Available { get; set; }
     public required Availability Status { get; set; }
     public enum Availability : ushort
     {
