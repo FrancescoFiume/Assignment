@@ -73,7 +73,7 @@ public class BookController: ControllerBase
         
         try
         {
-            List<Books> books = new List<Books>();
+            List<Books> books;
             if (author is null && title is not null)
             {
                 books = _bookCollection.Where(b =>
@@ -120,7 +120,7 @@ public class BookController: ControllerBase
                 .ToList();
             return Ok(books);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             _logger.LogError("Books not found");
             return NotFound("Books not found");
@@ -142,7 +142,7 @@ public class BookController: ControllerBase
                 .ToList();
             return Ok(books);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             _logger.LogError("Books not found");
             return NotFound("Books not found");
