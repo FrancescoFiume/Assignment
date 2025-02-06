@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Assignment.Data;
-
+#pragma warning disable CS1591
 public class AppDbContext :DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options)
@@ -122,13 +122,13 @@ public class AppDbContext :DbContext
             .WithMany(customer => customer.Reservations)
             .HasForeignKey(r => r.CustomerId)
             .OnDelete(DeleteBehavior.Cascade);
+        //Reservation Date
         modelBuilder.Entity<Reservations>()
             .Property(reservation => reservation.ReservationDate)
             .HasColumnName("ReservationDate")
             .HasColumnType("timestamp without time zone")
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-        
+        //Reservation Expiration Date, 15 days after the reservation
         modelBuilder.Entity<Reservations>()
             .Property(reservation => reservation.ExpirationDate)
             .HasColumnName("ExpirationDate")

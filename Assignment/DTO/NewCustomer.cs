@@ -1,5 +1,6 @@
 namespace Assignment.DTO;
 
+#pragma warning disable CS1591
 public struct NewCustomer
 {
     public string FirstName { get; set; }

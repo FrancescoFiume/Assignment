@@ -1,12 +1,12 @@
-using System.Reflection;
-
 namespace Assignment.Data.Models;
 
+#pragma warning disable CS1591
 public class Books:IObjectDb
 {
     public required int Id { get; set; } 
     public required string Title { get; set; }
     public required string Author { get; set; }
+    
     public required string ISBN { get; set; }
     public required int Available { get; set; }
     public required Availability Status { get; set; }
@@ -15,18 +15,8 @@ public class Books:IObjectDb
         Unavailable=0,
         Available=1   
     }
-    
+
     public virtual ICollection<Reservations> Reservations { get; set; }
-    
-    public override bool Equals(object? obj)
-    {
-        if (obj is not Books book)
-        {
-            return false;
-        }
-        
-        return book.Title == Title && 
-               book.Author == Author && 
-               book.ISBN == ISBN;
-    }
+
+
 }

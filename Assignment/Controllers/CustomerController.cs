@@ -8,14 +8,22 @@ using Assignment.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Assignment.Controllers;
+
+/// <summary>
+/// Contains CRUD operations for customer
+/// </summary>
 [ApiController]
  [Route("api/v1/[controller]")]
-
 public class CustomerController :ControllerBase
 {
     private readonly CustomerCollection _customerCollection;
     private readonly ILogger<CustomerController> _logger;
 
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="customerCollection">Dependency Injected customer Collection</param>
+    /// <param name="logger">Dependency Injected logger</param>
     public CustomerController(CustomerCollection customerCollection, ILogger<CustomerController> logger)
     {
         _customerCollection = customerCollection;
@@ -41,12 +49,17 @@ public class CustomerController :ControllerBase
     [HttpGet("{id}")]
     public  IActionResult GetOne(int id)
     {
-        var user = _customerCollection.FirstOrDefault(c => c.Id == id);
-        if (user == null)
+        try
         {
-            return NotFound();
+            var user = _customerCollection.GetById(id);
+            return Ok(user);
         }
-        return Ok(user);
+        catch (Exception e) when (e is ArgumentNullException || e is InvalidOperationException)
+        {
+            
+            _logger.LogError("Id not found");
+            return NotFound("Id not found");
+        }
     }
     
     /// <summary>
@@ -115,11 +128,6 @@ public class CustomerController :ControllerBase
     [HttpPut("update")]
     public IActionResult Update(UpdateCustomer newCustomer)
     {
-        if (_customerCollection.FirstOrDefault(c => c.Id == newCustomer.Id) == null)
-        {
-            _logger.LogError("Id not found");
-            return NotFound("Id not found");
-        }
         Customers toUpdate = new Customers
         {
             Id = newCustomer.Id,
@@ -131,6 +139,7 @@ public class CustomerController :ControllerBase
         PropertyInfo[] properties = userType.GetProperties();
         try
         {
+            _customerCollection.GetById(newCustomer.Id);
             foreach (var property in properties)
             {
                 if (property.GetValue(newCustomer) != null)
@@ -165,6 +174,11 @@ public class CustomerController :ControllerBase
             _customerCollection.Update(toUpdate);
             return NoContent();
         }
+        catch (Exception e) when (e is ArgumentNullException || e is InvalidOperationException)
+        {
+            _logger.LogError("Id not found");
+            return NotFound("Id not found");
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex.Message);
@@ -188,13 +202,14 @@ public class CustomerController :ControllerBase
     {
         try
         {
-            if (_customerCollection.FirstOrDefault(c => c.Id == id) == null)
-            {
-                _logger.LogError("Id not found");
-                return NotFound("Id not found");
-            }
+            _customerCollection.GetById(id);
             _customerCollection.Delete(id);
             return NoContent();
+        }
+        catch (Exception e) when (e is ArgumentNullException || e is InvalidOperationException)
+        {
+            _logger.LogError("Id not found");
+            return NotFound("Id not found");
         }
         catch (Exception ex)
         {

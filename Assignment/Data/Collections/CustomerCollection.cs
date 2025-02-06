@@ -4,12 +4,17 @@ using Assignment.Data.Models;
 
 namespace Assignment.Data.Collections;
 
+/// <summary>
+/// Customer Collection is a class that takes care of regrouping all the Customers in the db and offers easy access to CRUD
+/// operations.
+/// </summary>
 public class CustomerCollection:IObjectCollection<Customers>
 {
     //DI
     private readonly IServiceProvider _serviceProvider;
     //Private cache
-    private List<Customers> _cache;
+    private  List<Customers> _cache;
+    
     //public cache
     /// <summary>
     /// The public chache doesn't have a setter for security reasons.
@@ -19,37 +24,49 @@ public class CustomerCollection:IObjectCollection<Customers>
     {
         get
         {
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-                if (!IsCacheUsed)
-                {
-                    _cache = context.Customers.ToList();
-                    IsCacheUsed = true;
-                }
+            if (!IsCacheUsed)
+            {
+                _cache = context.Customers.ToList();
+                IsCacheUsed = true;
             }
             return _cache;
         }
        
     }
+    /// <summary>
+    /// The reasoning behind isChacheUsed it to have some sort of protection when the project is freshly started.<br />
+    /// If Id dind't have this but I had cache.Count() to check if the cache was empty then if you add an item to the
+    /// collection before having the cache to get the data from the db then you would be stuck with a cache of a lenght 1 which
+    /// would never update its content.
+    /// </summary>
     public bool IsCacheUsed { get; set; }
 
-    //Constr.
+    /// <summary>
+    /// Simple Contrusctor
+    /// </summary>
+    /// <param name="serviceProvider">
+    ///Dependency Injected service provided is needed for context operations
+    /// </param>
     public CustomerCollection(IServiceProvider serviceProvider)
     {
        _serviceProvider = serviceProvider;
+       IsCacheUsed = false;
+       _cache = new List<Customers>();
     }
     
     /// <summary>
-    /// GetById Takes an int and gives out the Item associated in the cache. or gives out an error
+    /// GetById Takes an int and gives out the Item associated in the cache. or gives out an error.
+    /// When first doesn't find anything it will throw an exception that will run to the controller and there
+    /// it will be catched and managed with a not found response to the endpoint
     /// </summary>
-    /// <param name="id"></param>
-    /// <returns></returns>
+    /// <param name="id">id of the element you want to find</param>
+    /// <returns>If the id is in the db it returns the comeple object of the collection</returns>
     public Customers GetById(int id)
     {
-        //TODO: Check if the account is null and if so throw error
-        return Cache.FirstOrDefault(customer => customer.Id == id);
+        return Cache.First(customer => customer.Id == id);
     }
     /// <summary>
     /// Add takes a Customer class, and disregards the Id and the RegistrationDate completely
@@ -71,7 +88,10 @@ public class CustomerCollection:IObjectCollection<Customers>
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         context.Customers.Add(newCustomer);
         context.SaveChanges();
-        _cache.Add(newCustomer);
+        if (IsCacheUsed)
+        {
+            _cache.Add(newCustomer);
+        }
         return newCustomer;
     }
 
@@ -84,25 +104,24 @@ public class CustomerCollection:IObjectCollection<Customers>
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
+        //can safely skip null checks, this parameter already passed the GetById check
         var customerToUpdateCache = GetById(customer.Id);
-        var customerToUpdateDb = context.Customers.FirstOrDefault(customer => customer.Id == customer.Id);
-
-        if (customerToUpdateDb != null && customerToUpdateCache != null)
+        var customerToUpdateDb = context.Customers.First(c => c.Id == customer.Id);
+        
+        Type userType = customer.GetType();
+        PropertyInfo[] properties = userType.GetProperties();
+        foreach (var property in properties)
         {
-            Type userType = customer.GetType();
-            PropertyInfo[] properties = userType.GetProperties();
-            foreach (var property in properties)
+            if (property.PropertyType == typeof(string) && property.GetValue(customer) as string != "")
             {
-                if (property.PropertyType == typeof(string) && property.GetValue(customer) as string != "")
-                {
-                   
-                    var toUpdateProperty = typeof(Customers).GetProperty(property.Name);
-                    toUpdateProperty.SetValue(customerToUpdateCache, property.GetValue(customer));
-                    toUpdateProperty.SetValue(customerToUpdateDb, property.GetValue(customer));
+               
+                var toUpdateProperty = typeof(Customers).GetProperty(property.Name);
+                toUpdateProperty!.SetValue(customerToUpdateCache, property.GetValue(customer));
+                toUpdateProperty.SetValue(customerToUpdateDb, property.GetValue(customer));
 
-                }
             }
         }
+        
 
         context.SaveChanges();
     }
@@ -115,13 +134,20 @@ public class CustomerCollection:IObjectCollection<Customers>
     {
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        var customerToDelete = context.Customers.FirstOrDefault(customer => customer.Id == id);
+        var customerToDelete = context.Customers.First(customer => customer.Id == id);
         
         _cache.Remove(customerToDelete);
         context.Customers.Remove(customerToDelete);
         context.SaveChanges();
     }
 
+    /// <summary>
+    /// When the class is used as an Enumerable then it returns the cache's iterator
+    /// </summary>
+    /// <returns>
+    ///If the cache has already been used, it returns _cache enumerator which is full, if it hasn't been used then it calls
+    /// Cache so that the getter kicks in and reads the data from the db
+    /// </returns>
     public IEnumerator<Customers> GetEnumerator()
     {
         if (IsCacheUsed)
