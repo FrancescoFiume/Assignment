@@ -69,7 +69,7 @@ public class CustomerCollection:IObjectCollection<Customers>
         return Cache.First(customer => customer.Id == id);
     }
     /// <summary>
-    /// Add takes a Customer class, and disregards the Id and the RegistrationDate completely
+    /// Add takes a Customer class, disregards the Id and the RegistrationDate completely
     /// then it creates a new entry in the db and 
     /// </summary>
     /// <param name="customer"></param>
@@ -105,7 +105,7 @@ public class CustomerCollection:IObjectCollection<Customers>
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         //can safely skip null checks, this parameter already passed the GetById check
-        var customerToUpdateCache = GetById(customer.Id);
+        
         var customerToUpdateDb = context.Customers.First(c => c.Id == customer.Id);
         
         Type userType = customer.GetType();
@@ -114,20 +114,21 @@ public class CustomerCollection:IObjectCollection<Customers>
         {
             if (property.PropertyType == typeof(string) && property.GetValue(customer) as string != "")
             {
-               
                 var toUpdateProperty = typeof(Customers).GetProperty(property.Name);
-                toUpdateProperty!.SetValue(customerToUpdateCache, property.GetValue(customer));
-                toUpdateProperty.SetValue(customerToUpdateDb, property.GetValue(customer));
+                toUpdateProperty!.SetValue(customerToUpdateDb, property.GetValue(customer));
 
             }
         }
-        
-
         context.SaveChanges();
+        if (IsCacheUsed)
+        {
+            int index =_cache.FindIndex(c => c.Id == customer.Id);
+            _cache[index] = customerToUpdateDb;
+        }
     }
     
     /// <summary>
-    /// Deletes an entry in both cache and bd from the id
+    /// Deletes an entry in both cache (if used) and bd from the id
     /// </summary>
     /// <param name="id"></param>
     public void Delete(int id)
@@ -135,8 +136,12 @@ public class CustomerCollection:IObjectCollection<Customers>
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var customerToDelete = context.Customers.First(customer => customer.Id == id);
-        
-        _cache.Remove(customerToDelete);
+
+        if (IsCacheUsed)
+        {
+            
+            _cache.Remove(customerToDelete);
+        }
         context.Customers.Remove(customerToDelete);
         context.SaveChanges();
     }

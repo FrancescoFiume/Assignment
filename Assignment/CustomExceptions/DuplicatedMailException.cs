@@ -1,9 +1,3 @@
 namespace Assignment.CustomExceptions;
-
-public class DuplicatedMailException:Exception
-{
-    public DuplicatedMailException() : base("Duplicated mail")
-    {
-        
-    }
-}
+#pragma warning disable CS1591
+public class DuplicatedMailException() : Exception("Duplicated mail");

@@ -16,8 +16,8 @@ public interface IObjectCollection<T> : IEnumerable<T>
     T GetById(int id);
     List<T> Cache { get;}
     bool IsCacheUsed { get; set; }
-    T Add(T customer);
-    void Update(T customer);
+    T Add(T item);
+    void Update(T item);
     void Delete(int id);
 
     /// <summary>

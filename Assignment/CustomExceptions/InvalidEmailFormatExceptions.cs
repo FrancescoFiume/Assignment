@@ -1,12 +1,5 @@
 
 
 namespace Assignment.CustomExceptions;
-
-public class InvalidEmailFormatExceptions:Exception
-
-{
-    public InvalidEmailFormatExceptions():base("Invalid email format")
-    {
-        
-    }
-}
+#pragma warning disable CS1591
+public class InvalidEmailFormatExceptions() : Exception("Invalid email format");
