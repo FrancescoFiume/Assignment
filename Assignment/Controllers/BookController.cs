@@ -49,8 +49,8 @@ public class BookController: ControllerBase
     {
         try
         {
-            var user = _bookCollection.GetById(id);
-            return Ok(user);
+            var book = _bookCollection.GetById(id);
+            return Ok(book);
         }
         catch (Exception e) when (e is ArgumentNullException || e is InvalidOperationException)
         {
@@ -59,6 +59,96 @@ public class BookController: ControllerBase
             return NotFound("Id not found");
         }
     }
+
+    /// <summary>
+    /// This function takes a string from the query body (Whatever is placed after title= or author= or both<br/>
+    /// and looks in the Db if there is anything matching those parameters.
+    /// </summary>
+    /// <param name="title">nullable string for the title</param>
+    /// <param name="author">nullable string for the author</param>
+    /// <returns>returns a collections of items that match the query</returns>
+    [HttpGet("search")]
+    public IActionResult GetByQuery([FromQuery] string? title, [FromQuery] string? author)
+    {
+        
+        try
+        {
+            List<Books> books = new List<Books>();
+            if (author is null && title is not null)
+            {
+                books = _bookCollection.Where(b =>
+                    b.Title.Equals(title, StringComparison.OrdinalIgnoreCase) ||
+                    b.Title.ToLower().Contains(title.ToLower())).ToList();
+                return Ok(books);
+            }
+            else if (title is null && author is not null)
+            {
+                books = _bookCollection.Where(b =>
+                    b.Author.Equals(author, StringComparison.OrdinalIgnoreCase) ||
+                    b.Author.ToLower().Contains(author.ToLower())).ToList();
+                return Ok(books);
+                
+            }
+
+            books = _bookCollection.Where(b =>
+                (b.Title.Equals(title, StringComparison.OrdinalIgnoreCase) ||
+                 b.Title.ToLower().Contains(title!.ToLower())) &&
+                (b.Author.Equals(author, StringComparison.OrdinalIgnoreCase) ||
+                 b.Author.ToLower().Contains(author!.ToLower()))
+            ).ToList();
+            return Ok(books);
+
+        }
+        catch (Exception e) when (e is ArgumentNullException || e is InvalidOperationException)
+        {
+            _logger.LogError("Book not found");
+            return NotFound("Book not found");
+        }
+    }
+/// <summary>
+/// Gives a list of availble books
+/// </summary>
+/// <returns>ù
+///returns the complete list of available books
+/// </returns>
+    [HttpGet("available")]
+    public IActionResult GetByAvailable()
+    {
+        try
+        {
+            var books = _bookCollection.Where(b => b.Status == Books.Availability.Available).OrderBy(b => b.Title)
+                .ToList();
+            return Ok(books);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Books not found");
+            return NotFound("Books not found");
+        }
+    }
+
+/// <summary>
+/// Gives a list of unavailable books
+/// </summary>
+/// <returns>
+///returns a list of unavailable books
+/// </returns>
+    [HttpGet("unavailable")]
+    public IActionResult GetByUnavailable()
+    {
+        try
+        {
+            var books = _bookCollection.Where(b => b.Status == Books.Availability.Unavailable).OrderBy(b => b.Title)
+                .ToList();
+            return Ok(books);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("Books not found");
+            return NotFound("Books not found");
+        }
+    }
+   
     
     /// <summary>
     /// Add new Book
