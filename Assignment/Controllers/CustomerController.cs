@@ -34,11 +34,24 @@ public class CustomerController :ControllerBase
     /// Fetch all the Customers
     /// </summary>
     /// <returns>returns the whole collection as is</returns>
-    /// 
+    /// <response code="200">
+    ///The object returned is a list of all the customers
+    /// </response>
+    /// <response code="400">
+    ///Something went wrong
+    /// </response>
     [HttpGet]
     public IActionResult All()
     {
-        return Ok(_customerCollection);
+        try
+        {
+            return Ok(_customerCollection);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
+        }
     }
 
     /// <summary>
@@ -46,6 +59,15 @@ public class CustomerController :ControllerBase
     /// </summary>
     /// <param name="id">Id must be an integer</param>
     /// <returns>returns the user that has the requested id</returns>
+    /// <response code="200">
+    ///Returns the user that has that id
+    /// </response>
+    /// <response code="404">
+    ///Id doesn't exist in the database
+    /// </response>
+    /// <response code="400">
+    ///Something Went wrong
+    /// </response>
     [HttpGet("{id}")]
     public  IActionResult GetOne(int id)
     {
@@ -56,9 +78,14 @@ public class CustomerController :ControllerBase
         }
         catch (Exception e) when (e is ArgumentNullException || e is InvalidOperationException)
         {
-            
+
             _logger.LogError("Id not found");
             return NotFound("Id not found");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex.Message);
+            return BadRequest(ex.Message);
         }
     }
     
@@ -72,11 +99,13 @@ public class CustomerController :ControllerBase
     /// Mail<br/>
     /// NB: The mail will be checked for both pattern and duplication in the codebase.
     /// </param>
-    /// <returns>
-    /// Returns 200 and the newly created user Id if everything goes straight,<br/>
-    /// BadRequest if the mail is invalid or present already in the codebase
-    /// </returns>
-    [HttpPost("new")]
+    /// <response code="201">
+    ///account created successfully and you get the redirectlink
+    /// </response>
+    ///<response code="400">
+    ///Duplicated or invalid mail, or something whent wrong, read the response body
+    /// </response>
+    [HttpPost]
     public IActionResult Add(NewCustomer newCustomer)
     {
         try
@@ -89,7 +118,7 @@ public class CustomerController :ControllerBase
             };
             HandleEmailValidation(newCustomerData);
             var newAcc = _customerCollection.Add(newCustomerData);
-            return Ok(newAcc.Id);
+            return Created("redirectLink",newAcc);
             //If this were an actual registration this should have returned
             //1) Id
             //2)Redirect page (The redirected page is a static page asking for mail to be verified.
@@ -120,12 +149,10 @@ public class CustomerController :ControllerBase
     /// If you only want to change one field just send the Id<br/>
     /// and the string you want to change
     /// </param>
-    /// <returns>
-    /// Not Found if the Id does not exist in the database,<br/>
-    /// Not Found if the email that you want to set is either incorrect or duplicated<br/>
-    /// No Content (code 204) if everything goes smoothly
-    /// </returns>
-    [HttpPut("update")]
+    ///<response code="204">Update successfull, no body needed</response>
+    /// <response code="400">Incorrect or used mail</response>
+    /// <response code="404">Id doesn't exist</response>
+    [HttpPut]
     public IActionResult Update(UpdateCustomer newCustomer)
     {
         Customers toUpdate = new Customers
@@ -197,8 +224,11 @@ public class CustomerController :ControllerBase
     ///Not Found if the Id doesn't exist,<br/>
     /// No Content (status 204) if the id exist and the deletion goes ok
     /// </returns>
-    [HttpDelete("delete/{id}")]
-    public IActionResult Delete(int id)
+    /// <response code="204">Item deleted successfully</response>
+    /// <response code="400">Something went wrong, read body</response>
+    /// <response code="404">Id doesn't exist</response>
+    [HttpDelete("{id}")]
+    public IActionResult Delete([FromRoute]int id)
     {
         try
         {

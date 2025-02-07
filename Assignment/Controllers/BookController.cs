@@ -31,21 +31,32 @@ public class BookController: ControllerBase
     /// <summary>
     /// Fetch all the Books
     /// </summary>
-    /// <returns>returns the whole collection as is</returns>
-    /// 
+    /// <response code="200">Returned a list of all the books in the database</response>
+    /// <response code="400">Something went wrong</response>
     [HttpGet]
     public IActionResult All()
     {
-        return Ok(_bookCollection);
+        try
+        {
+            return Ok(_bookCollection);
+
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return BadRequest(e.Message);
+        }
     }
     
     /// <summary>
-    /// Fetch specific customer by Id, if the user doesn't exist returns NotFound
+    /// Fetch specific book by Id, if the book doesn't exist returns NotFound
     /// </summary>
     /// <param name="id">Id must be an integer</param>
-    /// <returns>returns the user that has the requested id</returns>
+    /// <response code="200">returns the requested book</response>
+    /// <response code="404">Id doesn't exist</response>
+    /// <response code="400">Something went wrong</response>
     [HttpGet("{id}")]
-    public  IActionResult GetOne(int id)
+    public  IActionResult GetOne([FromRoute]int id)
     {
         try
         {
@@ -54,9 +65,14 @@ public class BookController: ControllerBase
         }
         catch (Exception e) when (e is ArgumentNullException || e is InvalidOperationException)
         {
-            
+
             _logger.LogError("Id not found");
             return NotFound("Id not found");
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return BadRequest();
         }
     }
 
@@ -66,11 +82,13 @@ public class BookController: ControllerBase
     /// </summary>
     /// <param name="title">nullable string for the title</param>
     /// <param name="author">nullable string for the author</param>
-    /// <returns>returns a collections of items that match the query</returns>
+    /// <response code="200">returns data that contain the requested string (title or author or both)</response>
+    /// <response code="404">Nothing matched the query</response>
+    /// <response code="400">Something went wrong</response>
     [HttpGet("search")]
     public IActionResult GetByQuery([FromQuery] string? title, [FromQuery] string? author)
     {
-        
+
         try
         {
             List<Books> books;
@@ -81,13 +99,14 @@ public class BookController: ControllerBase
                     b.Title.ToLower().Contains(title.ToLower())).ToList();
                 return Ok(books);
             }
-            else if (title is null && author is not null)
+
+            if (title is null && author is not null)
             {
                 books = _bookCollection.Where(b =>
                     b.Author.Equals(author, StringComparison.OrdinalIgnoreCase) ||
                     b.Author.ToLower().Contains(author.ToLower())).ToList();
                 return Ok(books);
-                
+
             }
 
             books = _bookCollection.Where(b =>
@@ -104,13 +123,17 @@ public class BookController: ControllerBase
             _logger.LogError("Book not found");
             return NotFound("Book not found");
         }
+        catch (Exception e)
+        {
+            _logger.LogError(e.Message);
+            return BadRequest();
+        }
     }
 /// <summary>
 /// Gives a list of availble books
 /// </summary>
-/// <returns>ù
-///returns the complete list of available books
-/// </returns>
+/// <response code="200">Returns a list of available books</response>
+/// <response code="400">Something went wrong</response>
     [HttpGet("available")]
     public IActionResult GetByAvailable()
     {
@@ -130,9 +153,8 @@ public class BookController: ControllerBase
 /// <summary>
 /// Gives a list of unavailable books
 /// </summary>
-/// <returns>
-///returns a list of unavailable books
-/// </returns>
+/// <response code="200">Returns a list of unavailable books</response>
+/// <response code="400">Something went wrong</response>
     [HttpGet("unavailable")]
     public IActionResult GetByUnavailable()
     {
@@ -159,11 +181,9 @@ public class BookController: ControllerBase
     /// Author<br/>
     /// ISBN<br/>
     /// </param>
-    /// <returns>
-    /// Returns 200 and the newly created user Id if everything goes straight,<br/>
-    /// BadRequest if anything goes wrong
-    /// </returns>
-    [HttpPost("new")]
+    /// <response code="201">Book successfully added</response>
+    /// <response code="400">Something went wrong</response>
+    [HttpPost]
     public IActionResult Add(NewBook newBook)
     {
         try
@@ -177,7 +197,7 @@ public class BookController: ControllerBase
             //No Checks Needed
             
             var newAdd = _bookCollection.Add(newBookData);
-            return Ok(newAdd.Id);
+            return Created("RedirectLink",newAdd.Id);
         }
         //If there were checks I would have catched exceptions here
         catch (Exception ex)
@@ -196,12 +216,11 @@ public class BookController: ControllerBase
     /// If you only want to change one field just send the Id<br/>
     /// and the string you want to change
     /// </param>
-    /// <returns>
-    /// Not Found if the Id does not exist in the database,<br/>
-    /// Bad Request if anything goes wrong <br/>
-    /// No Content (code 204) if everything goes smoothly
-    /// </returns>
-    [HttpPut("update")]
+    /// <param name="id"></param>
+    /// <response code="204">Update was successfull</response>
+    /// <response code="400">Something went wrong</response>
+    /// <response code="404">Id doesn't exist</response>
+    [HttpPut("{id}")]
     public IActionResult Update(UpdateBook updateBook)
     {
         var toUpdate = new Books
@@ -259,7 +278,9 @@ public class BookController: ControllerBase
     /// This put request takes care alone of the available / unavailable switch
     /// </summary>
     /// <param name="id">book that is being reserved or given back </param>
-    /// <returns></returns>
+    /// <response code="204">Status switched to opposite successfully</response>
+    /// <response code="400">Something went wrong</response>
+    /// <response code="404">Id doesn't exist</response>
     [HttpPut("toggleStatus/{id}")]
     public IActionResult ToggleStatus(int id)
     {
@@ -287,13 +308,11 @@ public class BookController: ControllerBase
     /// <param name="id">
     ///Id is just the int of the element that you want to delete.
     /// </param>
-    /// <returns>
-    ///Returns:<br/>
-    ///Not Found if the Id doesn't exist,<br/>
-    /// No Content (status 204) if the id exist and the deletion goes ok
-    /// </returns>
-    [HttpDelete("delete/{id}")]
-    public IActionResult Delete(int id)
+    /// <response code="204">Id deleted successfully</response>
+    /// <response code="400">Something went wrong</response>
+    /// <response code="404">Id not found</response>
+    [HttpDelete("{id}")]
+    public IActionResult Delete([FromRoute]int id)
     {
         try
         {
