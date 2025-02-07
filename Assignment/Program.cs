@@ -35,6 +35,7 @@ builder.Services.AddEntityFrameworkNpgsql()
 //Singleton Area
 builder.Services.AddSingleton<CustomerCollection>();
 builder.Services.AddSingleton<BookCollection>();
+builder.Services.AddSingleton<ReservationCollection>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
