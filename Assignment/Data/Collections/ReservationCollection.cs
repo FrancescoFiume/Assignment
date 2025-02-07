@@ -89,7 +89,11 @@ public class ReservationCollection : IObjectCollection<Reservations>
         context.SaveChanges();
         if (IsCacheUsed)
         {
-            _cache.Add(newReservation);
+            var toAdd = context.Reservations
+                .Where(r => r.Id == newReservation.Id)
+                .Include(r => r.Book)
+                .Include(r => r.Customer).First();
+            _cache.Add(toAdd);
         }
         return newReservation;
     }
