@@ -13,27 +13,21 @@ namespace Assignment.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/[controller]")]
-public class ReservationController:ControllerBase
+public class ReservationController : ControllerBase
 {
     private readonly ReservationCollection _reservationCollection;
-    private readonly CustomerCollection _customerCollection;
-    private readonly BookCollection _bookCollection;
     private readonly ILogger<CustomerController> _logger;
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="reservationCollection">Dependency Injected books Collection</param>
     /// <param name="logger">Dependency Injected logger</param>
-    public ReservationController(ReservationCollection reservationCollection, 
-        ILogger<CustomerController> logger,
-        CustomerCollection customerCollection,
-        BookCollection bookCollection)
+    public ReservationController(ReservationCollection reservationCollection,
+        ILogger<CustomerController> logger)
     {
         _logger = logger;
         _reservationCollection = reservationCollection;
-        _customerCollection = customerCollection;
-        _bookCollection = bookCollection;
-        
+
     }
     /// <summary>
     /// Fetch all the reservations
@@ -54,7 +48,7 @@ public class ReservationController:ControllerBase
             return BadRequest(e.Message);
         }
     }
-    
+
     /// <summary>
     /// Fetch specific reservation by customer Id, if the customer doesn't exist returns not found
     /// </summary>
@@ -64,7 +58,7 @@ public class ReservationController:ControllerBase
     /// <response code="404">Customer does not have any reservations</response>
     /// <response code="400">Something went wrong</response>
     [HttpGet("{customerId}")]
-    public  IActionResult GetCustomerReservations([FromRoute]int customerId)
+    public IActionResult GetCustomerReservations([FromRoute] int customerId)
     {
         try
         {
@@ -101,9 +95,9 @@ public class ReservationController:ControllerBase
         try
         {
             new Manager(new BookReservedChecks(_reservationCollection, newReservation.BookId), reservation).Check();
-           reservation =  _reservationCollection.Add(reservation);
+            reservation = _reservationCollection.Add(reservation);
             return Created("redirect Url", reservation);
-            
+
         }
         catch (BookReservedException ex)
         {
@@ -176,6 +170,6 @@ public class ReservationController:ControllerBase
             return BadRequest(e.Message);
         }
     }
-    
+
 
 }

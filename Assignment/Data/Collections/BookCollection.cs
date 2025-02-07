@@ -7,34 +7,36 @@ namespace Assignment.Data.Collections;
 /// Books Collection is a class that takes care of regrouping all the Books in the db and offers easy access to CRUD
 /// operations.
 /// </summary>
-public class BookCollection :IObjectCollection<Books>
+public class BookCollection : IObjectCollection<Books>
 {
     //DI
     private readonly IServiceProvider _serviceProvider;
     //Private cache
-    private List<Books> _cache{get;set;}
+    private List<Books> _cache { get; set; }
     //Public cache
     /// <summary>
     /// The public chache doesn't have a setter for security reasons.
     /// It always reads either from the _cache or the Db
     /// </summary>
-    public List<Books> Cache {
-        
-            get
-            {
-                using var scope = _serviceProvider.CreateScope();
-                
-                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    public List<Books> Cache
+    {
 
-                if (!IsCacheUsed)
-                {
-                    _cache = context.Books.ToList();
-                    IsCacheUsed = true;
-                }
-                
-                return _cache;
-            } }
-    
+        get
+        {
+            using var scope = _serviceProvider.CreateScope();
+
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            if (!IsCacheUsed)
+            {
+                _cache = context.Books.ToList();
+                IsCacheUsed = true;
+            }
+
+            return _cache;
+        }
+    }
+
     /// <summary>
     /// The reasoning behind isChacheUsed it to have some sort of protection when the project is freshly started.<br />
     /// If I had cache.Count() to check if the cache was empty then if you add an item to the
@@ -42,7 +44,7 @@ public class BookCollection :IObjectCollection<Books>
     /// would never update its content.
     /// </summary>
     public bool IsCacheUsed { get; set; }
-    
+
     /// <summary>
     /// Simple Contrusctor
     /// </summary>
@@ -92,7 +94,7 @@ public class BookCollection :IObjectCollection<Books>
             _cache.Add(newBook);
         }
         return newBook;
-        
+
     }
     /// <summary>
     ///Takes in a Book and takes care of the changes relative to author name and isbn.
@@ -104,25 +106,25 @@ public class BookCollection :IObjectCollection<Books>
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         //can safely skip null checks, this parameter already passed the GetById check
-        
-        var bookToUpdateDb = context.Books.Find(book.Id);
+
+        var bookToUpdateDb = context.Books.First(b => b.Id == book.Id);
         Type userType = book.GetType();
         PropertyInfo[] properties = userType.GetProperties();
         foreach (var property in properties)
         {
             if (property.PropertyType == typeof(string) && property.GetValue(book) as string != "")
             {
-               
+
                 var toUpdateProperty = typeof(Books).GetProperty(property.Name);
                 toUpdateProperty!.SetValue(bookToUpdateDb, property.GetValue(book));
             }
-            
+
         }
         context.Update(bookToUpdateDb);
         context.SaveChanges();
         if (IsCacheUsed)
         {
-            int index =_cache.FindIndex(b => b.Id == book.Id);
+            int index = _cache.FindIndex(b => b.Id == book.Id);
             _cache[index] = bookToUpdateDb;
         }
     }
@@ -145,11 +147,11 @@ public class BookCollection :IObjectCollection<Books>
         {
             toUpdate.Status = Books.Availability.Available;
         }
-        
+
         context.SaveChanges();
         if (IsCacheUsed)
         {
-            int index =_cache.FindIndex(book => book.Id == id);
+            int index = _cache.FindIndex(book => book.Id == id);
             _cache[index] = toUpdate;
         }
     }
@@ -158,7 +160,7 @@ public class BookCollection :IObjectCollection<Books>
     /// Deletes an entry in both cache (if used) and bd from the id
     /// </summary>
     /// <param name="id"></param>
-    public void Delete(int id) 
+    public void Delete(int id)
     {
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
@@ -166,7 +168,7 @@ public class BookCollection :IObjectCollection<Books>
 
         if (IsCacheUsed)
         {
-            int index =_cache.FindIndex(book => book.Id == id);
+            int index = _cache.FindIndex(book => book.Id == id);
 
             _cache.RemoveAt(index);
         }

@@ -13,8 +13,8 @@ namespace Assignment.Controllers;
 /// Contains CRUD operations for customer
 /// </summary>
 [ApiController]
- [Route("api/v1/[controller]")]
-public class CustomerController :ControllerBase
+[Route("api/v1/[controller]")]
+public class CustomerController : ControllerBase
 {
     private readonly CustomerCollection _customerCollection;
     private readonly ILogger<CustomerController> _logger;
@@ -29,7 +29,7 @@ public class CustomerController :ControllerBase
         _customerCollection = customerCollection;
         _logger = logger;
     }
-    
+
     /// <summary>
     /// Fetch all the Customers
     /// </summary>
@@ -69,7 +69,7 @@ public class CustomerController :ControllerBase
     ///Something Went wrong
     /// </response>
     [HttpGet("{id}")]
-    public  IActionResult GetOne(int id)
+    public IActionResult GetOne(int id)
     {
         try
         {
@@ -88,7 +88,7 @@ public class CustomerController :ControllerBase
             return BadRequest(ex.Message);
         }
     }
-    
+
     /// <summary>
     /// Add new Customer
     /// </summary>
@@ -118,7 +118,7 @@ public class CustomerController :ControllerBase
             };
             HandleEmailValidation(newCustomerData);
             var newAcc = _customerCollection.Add(newCustomerData);
-            return Created("redirectLink",newAcc);
+            return Created("redirectLink", newAcc);
             //If this were an actual registration this should have returned
             //1) Id
             //2)Redirect page (The redirected page is a static page asking for mail to be verified.
@@ -228,7 +228,7 @@ public class CustomerController :ControllerBase
     /// <response code="400">Something went wrong, read body</response>
     /// <response code="404">Id doesn't exist</response>
     [HttpDelete("{id}")]
-    public IActionResult Delete([FromRoute]int id)
+    public IActionResult Delete([FromRoute] int id)
     {
         try
         {
@@ -251,6 +251,6 @@ public class CustomerController :ControllerBase
 
     private void HandleEmailValidation(Customers customer)
     {
-            new Manager(new EmailCheck(_customerCollection, customer.Email), customer).Check();
+        new Manager(new EmailCheck(_customerCollection, customer.Email), customer).Check();
     }
 }

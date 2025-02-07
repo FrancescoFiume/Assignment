@@ -28,7 +28,7 @@ builder.Services.AddEntityFrameworkNpgsql()
     {
         options.UseNpgsql(
             builder.Configuration.GetConnectionString("DefaultConnection"),
-            o=> o.MapEnum<Books.Availability>("availability") 
+            o => o.MapEnum<Books.Availability>("availability")
         );
     });
 

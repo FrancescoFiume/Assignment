@@ -8,13 +8,13 @@ namespace Assignment.Data.Collections;
 /// Customer Collection is a class that takes care of regrouping all the Customers in the db and offers easy access to CRUD
 /// operations.
 /// </summary>
-public class CustomerCollection:IObjectCollection<Customers>
+public class CustomerCollection : IObjectCollection<Customers>
 {
     //DI
     private readonly IServiceProvider _serviceProvider;
     //Private cache
-    private  List<Customers> _cache;
-    
+    private List<Customers> _cache;
+
     //public cache
     /// <summary>
     /// The public chache doesn't have a setter for security reasons.
@@ -34,7 +34,7 @@ public class CustomerCollection:IObjectCollection<Customers>
             }
             return _cache;
         }
-       
+
     }
     /// <summary>
     /// The reasoning behind isChacheUsed it to have some sort of protection when the project is freshly started.<br />
@@ -52,11 +52,11 @@ public class CustomerCollection:IObjectCollection<Customers>
     /// </param>
     public CustomerCollection(IServiceProvider serviceProvider)
     {
-       _serviceProvider = serviceProvider;
-       IsCacheUsed = false;
-       _cache = new List<Customers>();
+        _serviceProvider = serviceProvider;
+        IsCacheUsed = false;
+        _cache = new List<Customers>();
     }
-    
+
     /// <summary>
     /// GetById Takes an int and gives out the Item associated in the cache. or gives out an error.
     /// When first doesn't find anything it will throw an exception that will run to the controller and there
@@ -105,9 +105,9 @@ public class CustomerCollection:IObjectCollection<Customers>
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         //can safely skip null checks, this parameter already passed the GetById check
-        
-        var customerToUpdateDb = context.Customers.Find(customer.Id);
-        
+
+        var customerToUpdateDb = context.Customers.First(c => c.Id == customer.Id);
+
         Type userType = customer.GetType();
         PropertyInfo[] properties = userType.GetProperties();
         foreach (var property in properties)
@@ -122,11 +122,11 @@ public class CustomerCollection:IObjectCollection<Customers>
         context.SaveChanges();
         if (IsCacheUsed)
         {
-            int index =_cache.FindIndex(c => c.Id == customer.Id);
+            int index = _cache.FindIndex(c => c.Id == customer.Id);
             _cache[index] = customerToUpdateDb;
         }
     }
-    
+
     /// <summary>
     /// Deletes an entry in both cache (if used) and bd from the id
     /// </summary>
@@ -139,7 +139,7 @@ public class CustomerCollection:IObjectCollection<Customers>
 
         if (IsCacheUsed)
         {
-            int index =_cache.FindIndex(c => c.Id == id);
+            int index = _cache.FindIndex(c => c.Id == id);
 
             _cache.RemoveAt(index);
         }

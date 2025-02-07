@@ -17,12 +17,12 @@ public class Manager
     private BookReservedChecks _bookReservedChecks;
 
 
-/// <summary>
-/// Constructor
-/// </summary>
-/// <param name="emailCheck">Email Checker</param>
-/// <param name="toCheck">Class that implements IObjectDb that needs the checkin'</param>
- #pragma warning disable CS8618
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="emailCheck">Email Checker</param>
+    /// <param name="toCheck">Class that implements IObjectDb that needs the checkin'</param>
+#pragma warning disable CS8618
     public Manager(EmailCheck emailCheck, IObjectDb toCheck)
     {
         _emailCheck = emailCheck;
@@ -33,7 +33,7 @@ public class Manager
     /// </summary>
     /// <param name="isbnCheck">isbn Checker</param>
     /// <param name="toCheck">Class that implements IObjectDb that needs the checkin'</param>
-    #pragma warning disable CS8618
+#pragma warning disable CS8618
     public Manager(IsbnCheck isbnCheck, IObjectDb toCheck)
     {
         _toCheck = toCheck;
@@ -43,8 +43,7 @@ public class Manager
     /// <summary>
     /// Constructor
     /// </summary>
-    /// <param name="bookReservedChecks">Check if book id exists</param>
-    /// <param name="customerExists">Check if customer id exists</param>
+    /// <param name="bookReservedChecks">check initialization</param>
     /// <param name="toCheck">Class that implements IObjectDb that needs the checkin'</param>
 #pragma warning disable CS8618
     public Manager(BookReservedChecks bookReservedChecks, IObjectDb toCheck)
@@ -53,38 +52,38 @@ public class Manager
         _toCheck = toCheck;
     }
 
-/// <summary>
-/// This function is pretty straightforward, it's just a switch case which tries to cast the<br/>
-/// argument into one of the classes that implements the underlying interface.<br/>
-/// if the cast is successfull then it perform the checks of that class.
-/// </summary>
+    /// <summary>
+    /// This function is pretty straightforward, it's just a switch case which tries to cast the<br/>
+    /// argument into one of the classes that implements the underlying interface.<br/>
+    /// if the cast is successfull then it perform the checks of that class.
+    /// </summary>
     public void Check()
     {
         switch (_toCheck)
         {
-            case (Customers customer):
-            {
-                
-                _emailCheck.Check();
-                //EmailCheck is the only one that made sense to me.
-                return;
-            }
-            case (Books book):
-            {
-                _isbnCheck.Check();
-                return;
-            }
-            case (Reservations reservation):
-            {
-                _bookReservedChecks.Check();
-                return;
-            }
+            case (Customers):
+                {
+
+                    _emailCheck.Check();
+                    //EmailCheck is the only one that made sense to me.
+                    return;
+                }
+            case (Books):
+                {
+                    _isbnCheck.Check();
+                    return;
+                }
+            case (Reservations):
+                {
+                    _bookReservedChecks.Check();
+                    return;
+                }
         }
-        
-        
-       
+
+
+
 
     }
-    
-    
+
+
 }

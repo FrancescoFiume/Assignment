@@ -3,5 +3,5 @@ namespace Assignment.CustomExceptions;
 
 public class BookReservedException() : Exception("Book Reserved Already")
 {
-    
+
 }

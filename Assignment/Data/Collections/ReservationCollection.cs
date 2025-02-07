@@ -8,32 +8,35 @@ namespace Assignment.Data.Collections;
 /// Reservation Collection is a class that takes care of regrouping all the Reservations in the db and offers easy access to CRUD
 /// operations.
 /// </summary>
-public class ReservationCollection:IObjectCollection<Reservations>
+public class ReservationCollection : IObjectCollection<Reservations>
 {
     //DI
     private readonly IServiceProvider _serviceProvider;
     //Private cache
-    private  List<Reservations> _cache;
+    private List<Reservations> _cache;
     //public cache
     /// <summary>
     /// The public chache doesn't have a setter for security reasons.
     /// It always reads either from the _cache or the Db
     /// </summary>
-    public List<Reservations> Cache { get
+    public List<Reservations> Cache
     {
-        using var scope = _serviceProvider.CreateScope();
-        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
-        if (!IsCacheUsed)
+        get
         {
-            _cache = context.Reservations
-                .Include(r=>r.Book)
-                .Include(r=>r.Customer)
-                .ToList();
-            IsCacheUsed = true;
+            using var scope = _serviceProvider.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+            if (!IsCacheUsed)
+            {
+                _cache = context.Reservations
+                    .Include(r => r.Book)
+                    .Include(r => r.Customer)
+                    .ToList();
+                IsCacheUsed = true;
+            }
+            return _cache;
         }
-        return _cache;
-    } }
+    }
     /// <summary>
     /// The reasoning behind isChacheUsed it to have some sort of protection when the project is freshly started.<br />
     /// If I had cache.Count() to check if the cache was empty then if you add an item to the
@@ -101,14 +104,14 @@ public class ReservationCollection:IObjectCollection<Reservations>
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         //can safely skip null checks, this parameter already passed the GetById check
-        
+
         var reservationToUpdateDb = context.Reservations.Find(item.Id);
-        
+
         Type userType = item.GetType();
         PropertyInfo[] properties = userType.GetProperties();
         foreach (var property in properties)
         {
-            if (property.PropertyType == typeof(string) 
+            if (property.PropertyType == typeof(string)
                 && property.GetValue(item) as string != ""
                 && property.Name != "ExpirationDate")
             {
@@ -120,15 +123,15 @@ public class ReservationCollection:IObjectCollection<Reservations>
         context.SaveChanges();
         if (IsCacheUsed)
         {
-            int index =_cache.FindIndex(r => r.Id == item.Id);
+            int index = _cache.FindIndex(r => r.Id == item.Id);
             _cache[index] = reservationToUpdateDb!;
         }
     }
-/// <summary>
-/// Change expiration date to custom date
-/// </summary>
-/// <param name="id">id of the reservation</param>
-/// <param name="expirationDate">new expiration date</param>
+    /// <summary>
+    /// Change expiration date to custom date
+    /// </summary>
+    /// <param name="id">id of the reservation</param>
+    /// <param name="expirationDate">new expiration date</param>
     public void SetCustomExpiration(int id, DateTime expirationDate)
     {
         using var scope = _serviceProvider.CreateScope();
@@ -142,7 +145,7 @@ public class ReservationCollection:IObjectCollection<Reservations>
             _cache[index] = reservation;
         }
     }
-    
+
 
     /// <summary>
     /// Deletes an entry in both cache (if used) and bd from the id
@@ -155,7 +158,7 @@ public class ReservationCollection:IObjectCollection<Reservations>
         var toDelete = GetById(id);
         if (IsCacheUsed)
         {
-            int index =_cache.FindIndex(c => c.Id == id);
+            int index = _cache.FindIndex(c => c.Id == id);
 
             _cache.RemoveAt(index);
         }

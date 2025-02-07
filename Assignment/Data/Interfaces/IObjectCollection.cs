@@ -14,7 +14,7 @@ public interface IObjectCollection<T> : IEnumerable<T>
 
 #pragma warning disable CS1591
     T GetById(int id);
-    List<T> Cache { get;}
+    List<T> Cache { get; }
     bool IsCacheUsed { get; set; }
     T Add(T item);
     void Update(T item);

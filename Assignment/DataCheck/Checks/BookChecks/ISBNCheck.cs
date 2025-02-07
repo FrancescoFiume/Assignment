@@ -6,7 +6,7 @@ namespace Assignment.DataCheck.Checks.BookChecks;
 /// <summary>
 /// This class ensures that the isbn is correct
 /// </summary>
-public class IsbnCheck :ICheck
+public class IsbnCheck : ICheck
 {
     /// <summary>
     /// Isbn string
@@ -31,7 +31,7 @@ public class IsbnCheck :ICheck
     /// </summary>
     /// <exception cref="InvalidIsbnException">if the isbn is invalid throws a custom error</exception>
     public void Check()
-    { 
+    {
         Regex isbn10Regex = new Regex(@"^\d{9}[\dX]$");
         Regex isbn13Regex = new Regex(@"^\d{13}$");
         if (ISBN.Length == 10 && isbn10Regex.IsMatch(ISBN))
@@ -58,7 +58,7 @@ public class IsbnCheck :ICheck
     /// <returns>
     ///returns true if the isbn is valid
     /// </returns>
-    private  bool IsValidIsbn10()
+    private bool IsValidIsbn10()
     {
         int sum = 0;
         for (int i = 0; i < 9; i++)
@@ -82,11 +82,11 @@ public class IsbnCheck :ICheck
         int sum = 0;
         for (int i = 0; i < 12; i++)
         {
-            if (!char.IsDigit(ISBN[i])) return false; 
+            if (!char.IsDigit(ISBN[i])) return false;
             sum += (ISBN[i] - '0') * (i % 2 == 0 ? 1 : 3);
         }
         int checksum = (10 - (sum % 10)) % 10;
         return checksum == (ISBN[12] - '0');
     }
-    
+
 }

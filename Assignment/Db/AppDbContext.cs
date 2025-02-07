@@ -4,10 +4,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Assignment.Data;
 #pragma warning disable CS1591
-public class AppDbContext :DbContext
+public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options){}
+        : base(options) { }
 
     public virtual DbSet<Customers> Customers { get; set; }
     public virtual DbSet<Books> Books { get; set; }
@@ -20,7 +20,7 @@ public class AppDbContext :DbContext
         modelBuilder.Entity<Customers>()
             .ToTable("Customer")
             .HasKey(customer => customer.Id);
-            
+
         //Id
         modelBuilder.Entity<Customers>()
             .Property(customer => customer.Id)
@@ -30,7 +30,7 @@ public class AppDbContext :DbContext
             .IsRequired();
         //FirstName
         modelBuilder.Entity<Customers>()
-            .Property(customer=> customer.FirstName)
+            .Property(customer => customer.FirstName)
             .HasColumnName("FirstName")
             .HasColumnType("VARCHAR")
             .HasMaxLength(128)
@@ -50,12 +50,12 @@ public class AppDbContext :DbContext
             .HasMaxLength(128);
         //RegistrationDate
         modelBuilder.Entity<Customers>()
-            .Property(customer=> customer.RegistrationDate)
+            .Property(customer => customer.RegistrationDate)
             .HasColumnName("RegistrationDate")
             .HasColumnType("timestamp without time zone")
             .HasDefaultValueSql("CURRENT_TIMESTAMP")
             .IsRequired();
-        
+
         //Books Region
         //PK and Table Definition
         modelBuilder.Entity<Books>()
@@ -70,21 +70,21 @@ public class AppDbContext :DbContext
             .IsRequired();
         //Title
         modelBuilder.Entity<Books>()
-            .Property(book=> book.Title)
+            .Property(book => book.Title)
             .HasColumnName("Title")
             .HasColumnType("VARCHAR")
             .HasMaxLength(128)
             .IsRequired();
         //Author
         modelBuilder.Entity<Books>()
-            .Property(book=> book.Author)
+            .Property(book => book.Author)
             .HasColumnName("Author")
             .HasColumnType("VARCHAR")
             .HasMaxLength(128)
             .IsRequired();
         //ISBN
         modelBuilder.Entity<Books>()
-            .Property(book=> book.ISBN)
+            .Property(book => book.ISBN)
             .HasColumnName("ISBN")
             .HasColumnType("VARCHAR")
             .HasMaxLength(16)
@@ -140,5 +140,5 @@ public class AppDbContext :DbContext
 
 
     }
-    
+
 }

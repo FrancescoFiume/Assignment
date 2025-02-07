@@ -14,7 +14,7 @@ namespace Assignment.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/v1/[controller]")]
-public class BookController: ControllerBase
+public class BookController : ControllerBase
 {
     private readonly BookCollection _bookCollection;
     private readonly ILogger<CustomerController> _logger;
@@ -47,7 +47,7 @@ public class BookController: ControllerBase
             return BadRequest(e.Message);
         }
     }
-    
+
     /// <summary>
     /// Fetch specific book by Id, if the book doesn't exist returns NotFound
     /// </summary>
@@ -56,7 +56,7 @@ public class BookController: ControllerBase
     /// <response code="404">Id doesn't exist</response>
     /// <response code="400">Something went wrong</response>
     [HttpGet("{id}")]
-    public  IActionResult GetOne([FromRoute]int id)
+    public IActionResult GetOne([FromRoute] int id)
     {
         try
         {
@@ -129,11 +129,11 @@ public class BookController: ControllerBase
             return BadRequest();
         }
     }
-/// <summary>
-/// Gives a list of availble books
-/// </summary>
-/// <response code="200">Returns a list of available books</response>
-/// <response code="400">Something went wrong</response>
+    /// <summary>
+    /// Gives a list of availble books
+    /// </summary>
+    /// <response code="200">Returns a list of available books</response>
+    /// <response code="400">Something went wrong</response>
     [HttpGet("available")]
     public IActionResult GetByAvailable()
     {
@@ -150,11 +150,11 @@ public class BookController: ControllerBase
         }
     }
 
-/// <summary>
-/// Gives a list of unavailable books
-/// </summary>
-/// <response code="200">Returns a list of unavailable books</response>
-/// <response code="400">Something went wrong</response>
+    /// <summary>
+    /// Gives a list of unavailable books
+    /// </summary>
+    /// <response code="200">Returns a list of unavailable books</response>
+    /// <response code="400">Something went wrong</response>
     [HttpGet("unavailable")]
     public IActionResult GetByUnavailable()
     {
@@ -170,8 +170,8 @@ public class BookController: ControllerBase
             return NotFound("Books not found");
         }
     }
-   
-    
+
+
     /// <summary>
     /// Add new Book
     /// </summary>
@@ -195,9 +195,9 @@ public class BookController: ControllerBase
                 ISBN = newBook.ISBN,
             };
             //No Checks Needed
-            
+
             var newAdd = _bookCollection.Add(newBookData);
-            return Created("RedirectLink",newAdd.Id);
+            return Created("RedirectLink", newAdd.Id);
         }
         //If there were checks I would have catched exceptions here
         catch (Exception ex)
@@ -206,7 +206,7 @@ public class BookController: ControllerBase
             return BadRequest(ex.Message);
         }
     }
-    
+
     /// <summary>
     /// Change one or more properties on the underlying object
     /// </summary>
@@ -216,7 +216,6 @@ public class BookController: ControllerBase
     /// If you only want to change one field just send the Id<br/>
     /// and the string you want to change
     /// </param>
-    /// <param name="id"></param>
     /// <response code="204">Update was successfull</response>
     /// <response code="400">Something went wrong</response>
     /// <response code="404">Id doesn't exist</response>
@@ -312,7 +311,7 @@ public class BookController: ControllerBase
     /// <response code="400">Something went wrong</response>
     /// <response code="404">Id not found</response>
     [HttpDelete("{id}")]
-    public IActionResult Delete([FromRoute]int id)
+    public IActionResult Delete([FromRoute] int id)
     {
         try
         {
@@ -332,9 +331,13 @@ public class BookController: ControllerBase
         }
     }
 
+    /// <summary>
+    /// Since the this check was used more than once I created a function for code readability
+    /// </summary>
+    /// <param name="book">the item that you want the isbn checked</param>
     private void HandleIsbnValidation(Books book)
     {
         new Manager(new IsbnCheck(book.ISBN), book).Check();
     }
-    
+
 }
