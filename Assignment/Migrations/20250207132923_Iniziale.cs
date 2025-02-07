@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Assignment.Migrations
 {
     /// <inheritdoc />
-    public partial class Migrazione1 : Migration
+    public partial class Iniziale : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -24,7 +24,6 @@ namespace Assignment.Migrations
                     Title = table.Column<string>(type: "VARCHAR", maxLength: 128, nullable: false),
                     Author = table.Column<string>(type: "VARCHAR", maxLength: 128, nullable: false),
                     ISBN = table.Column<string>(type: "VARCHAR", maxLength: 16, nullable: false),
-                    Available = table.Column<int>(type: "integer", nullable: false),
                     Availability = table.Column<int>(type: "INT", nullable: false, defaultValue: 1)
                 },
                 constraints: table =>

@@ -1,0 +1,39 @@
+﻿services:
+  # Servizio ASP.NET Core
+  web:
+    build:
+      context: .
+      dockerfile: Assignment/Dockerfile
+    container_name: assignment-web
+    ports:
+      - "8080:80" 
+    networks:
+      - app-network
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=postgres;Username=postgres;Password=mysecretpassword
+    depends_on:
+      - postgres
+    entrypoint: /bin/bash -c "sleep 10 && dotnet Assignment.dll --urls http://0.0.0.0:80"
+
+  # Servizio PostgreSQL
+  postgres:
+    image: postgres:13
+    container_name: assignment-db
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
