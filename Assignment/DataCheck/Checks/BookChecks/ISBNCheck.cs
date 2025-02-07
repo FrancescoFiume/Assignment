@@ -6,7 +6,7 @@ namespace Assignment.DataCheck.Checks.BookChecks;
 /// <summary>
 /// This class ensures that the isbn is correct
 /// </summary>
-public class IsbnCheck
+public class IsbnCheck :ICheck
 {
     /// <summary>
     /// Isbn string

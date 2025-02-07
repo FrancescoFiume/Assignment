@@ -2,6 +2,7 @@ using Assignment.Data;
 using Assignment.Data.Models;
 using Assignment.DataCheck.Checks.BookChecks;
 using Assignment.DataCheck.Checks.CustomerChecks;
+using Assignment.DataCheck.Checks.ReservationCheck;
 
 namespace Assignment.DataCheck;
 /// <summary>
@@ -13,6 +14,7 @@ public class Manager
     private readonly EmailCheck _emailCheck;
     private IObjectDb _toCheck;
     private IsbnCheck _isbnCheck;
+    private BookReservedChecks _bookReservedChecks;
 
 
 /// <summary>
@@ -38,6 +40,18 @@ public class Manager
         _isbnCheck = isbnCheck;
     }
 
+    /// <summary>
+    /// Constructor
+    /// </summary>
+    /// <param name="bookReservedChecks">Check if book id exists</param>
+    /// <param name="customerExists">Check if customer id exists</param>
+    /// <param name="toCheck">Class that implements IObjectDb that needs the checkin'</param>
+#pragma warning disable CS8618
+    public Manager(BookReservedChecks bookReservedChecks, IObjectDb toCheck)
+    {
+        _bookReservedChecks = bookReservedChecks;
+        _toCheck = toCheck;
+    }
 
 /// <summary>
 /// This function is pretty straightforward, it's just a switch case which tries to cast the<br/>
@@ -51,13 +65,18 @@ public class Manager
             case (Customers customer):
             {
                 
-                _emailCheck.Check(customer.Email);
+                _emailCheck.Check();
                 //EmailCheck is the only one that made sense to me.
                 return;
             }
             case (Books book):
             {
                 _isbnCheck.Check();
+                return;
+            }
+            case (Reservations reservation):
+            {
+                _bookReservedChecks.Check();
                 return;
             }
         }
