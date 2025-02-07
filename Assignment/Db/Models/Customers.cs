@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Assignment.Data.Models;
@@ -14,6 +15,7 @@ public class Customers:IObjectDb
     public required string Email { get; set; }
     public DateTime RegistrationDate { get; set; }
     
+    [JsonIgnore]
     public virtual ICollection<Reservations> Reservations { get; set; }
 
     

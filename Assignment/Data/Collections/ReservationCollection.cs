@@ -1,6 +1,7 @@
 using System.Reflection;
 using Assignment.Data.Interfaces;
 using Assignment.Data.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Assignment.Data.Collections;
 /// <summary>
@@ -25,7 +26,10 @@ public class ReservationCollection:IObjectCollection<Reservations>
 
         if (!IsCacheUsed)
         {
-            _cache = context.Reservations.ToList();
+            _cache = context.Reservations
+                .Include(r=>r.Book)
+                .Include(r=>r.Customer)
+                .ToList();
             IsCacheUsed = true;
         }
         return _cache;

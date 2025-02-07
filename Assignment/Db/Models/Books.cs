@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Assignment.Data.Models;
 
 #pragma warning disable CS1591
@@ -15,6 +17,7 @@ public class Books:IObjectDb
         Available=1   
     }
 
+    [JsonIgnore]
     public virtual ICollection<Reservations> Reservations { get; set; }
 
 
