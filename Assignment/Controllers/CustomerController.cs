@@ -251,6 +251,6 @@ public class CustomerController :ControllerBase
 
     private void HandleEmailValidation(Customers customer)
     {
-            new Manager(new EmailCheck(_customerCollection), customer).Check();
+            new Manager(new EmailCheck(_customerCollection, customer.Email), customer).Check();
     }
 }
