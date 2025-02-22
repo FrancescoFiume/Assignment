@@ -1,8 +1,8 @@
 using Assignment.CustomExceptions;
 using Assignment.Data.Collections;
-using Assignment.Data.Models;
 using Assignment.DataCheck;
 using Assignment.DataCheck.Checks.ReservationCheck;
+using Assignment.Db.Models;
 using Assignment.DTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

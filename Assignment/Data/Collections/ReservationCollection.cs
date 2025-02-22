@@ -1,7 +1,9 @@
 using System.Reflection;
 using Assignment.Data.Interfaces;
-using Assignment.Data.Models;
+using Assignment.Db;
+using Assignment.Db.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Assignment.Data.Collections;
 /// <summary>
@@ -14,6 +16,7 @@ public class ReservationCollection : IObjectCollection<Reservations>
     private readonly IServiceProvider _serviceProvider;
     //Private cache
     private List<Reservations> _cache;
+    
     //public cache
     /// <summary>
     /// The public chache doesn't have a setter for security reasons.
@@ -29,7 +32,7 @@ public class ReservationCollection : IObjectCollection<Reservations>
             if (!IsCacheUsed)
             {
                 _cache = context.Reservations
-                    .Include(r => r.Book)
+                    .Include(r => r.BookDbo)
                     .Include(r => r.Customer)
                     .ToList();
                 IsCacheUsed = true;
@@ -91,7 +94,7 @@ public class ReservationCollection : IObjectCollection<Reservations>
         {
             var toAdd = context.Reservations
                 .Where(r => r.Id == newReservation.Id)
-                .Include(r => r.Book)
+                .Include(r => r.BookDbo)
                 .Include(r => r.Customer).First();
             _cache.Add(toAdd);
         }

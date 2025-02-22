@@ -1,11 +1,11 @@
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
-namespace Assignment.Data.Models;
+namespace Assignment.Db.Models;
 
-#pragma warning disable CS1591
-public class Customers : IObjectDb
+public class Customers : IObjectDb, IEntityTypeConfiguration<Customers>
 {
     public int Id { get; set; }
 
@@ -18,5 +18,47 @@ public class Customers : IObjectDb
     [JsonIgnore]
     public virtual ICollection<Reservations> Reservations { get; set; }
 
+    public void Configure(EntityTypeBuilder<Customers> builder)
+    {
+        //Customer Region
+        //PK and Table Definition
+        builder
+            .ToTable("Customer")
+            .HasKey(customer => customer.Id);
 
+        //Id
+        builder
+            .Property(customer => customer.Id)
+            .HasColumnName("Id")
+            .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.SerialColumn)
+            .ValueGeneratedOnAdd()
+            .IsRequired();
+        //FirstName
+        builder
+            .Property(customer => customer.FirstName)
+            .HasColumnName("FirstName")
+            .HasColumnType("VARCHAR")
+            .HasMaxLength(128)
+            .IsRequired();
+        //LastName
+        builder
+            .Property(customer => customer.LastName)
+            .HasColumnName("LastName")
+            .HasColumnType("VARCHAR")
+            .HasMaxLength(128)
+            .IsRequired();
+        //Email
+        builder
+            .Property(customer => customer.Email)
+            .HasColumnName("Email")
+            .HasColumnType("VARCHAR")
+            .HasMaxLength(128);
+        //RegistrationDate
+        builder
+            .Property(customer => customer.RegistrationDate)
+            .HasColumnName("RegistrationDate")
+            .HasColumnType("timestamp without time zone")
+            .HasDefaultValueSql("CURRENT_TIMESTAMP")
+            .IsRequired();
+    }
 }
