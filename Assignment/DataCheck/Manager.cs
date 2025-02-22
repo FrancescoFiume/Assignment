@@ -1,8 +1,9 @@
 using Assignment.Data;
-using Assignment.Data.Models;
 using Assignment.DataCheck.Checks.BookChecks;
 using Assignment.DataCheck.Checks.CustomerChecks;
 using Assignment.DataCheck.Checks.ReservationCheck;
+using Assignment.Db;
+using Assignment.Db.Models;
 
 namespace Assignment.DataCheck;
 /// <summary>
@@ -68,7 +69,7 @@ public class Manager
                     //EmailCheck is the only one that made sense to me.
                     return;
                 }
-            case (Books):
+            case (BookDbo):
                 {
                     _isbnCheck.Check();
                     return;

@@ -1,4 +1,4 @@
-namespace Assignment.Data;
+namespace Assignment.Db;
 
 #pragma warning disable CS1591
 public interface IObjectDb

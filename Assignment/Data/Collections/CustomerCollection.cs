@@ -1,6 +1,7 @@
 using System.Reflection;
 using Assignment.Data.Interfaces;
-using Assignment.Data.Models;
+using Assignment.Db;
+using Assignment.Db.Models;
 
 namespace Assignment.Data.Collections;
 

@@ -1,20 +1,35 @@
 using System.Reflection;
-using Assignment.Data;
-using Assignment.Data.Collections;
-using Assignment.Data.Models;
+using System.Text.Json.Serialization;
+using Asp.Versioning;
+using Assignment.Db;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
-//Controller Registration
-builder.Services.AddControllers();
 
-//Swagger setup
+builder.Services.AddProblemDetails();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(o =>
+    {
+        o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
+
+
+builder.Services
+    .AddApiVersioning(o =>
+    {
+        o.DefaultApiVersion = new ApiVersion(1, 0);
+        o.ApiVersionReader = new HeaderApiVersionReader("X-Api-Version");
+    })
+    .AddMvc();
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    
     c.IncludeXmlComments(xmlPath);
     c.SwaggerDoc("v1", new OpenApiInfo
     {
@@ -23,22 +38,17 @@ builder.Services.AddSwaggerGen(c =>
         Description = "Simple API to showcase few asp.NET skills",
     });
 });
-builder.Services.AddEntityFrameworkNpgsql()
-    .AddDbContext<AppDbContext>(options =>
-    {
-        options.UseNpgsql(
-            builder.Configuration.GetConnectionString("DefaultConnection"),
-            o => o.MapEnum<Books.Availability>("availability")
-        );
-    });
 
-//Singleton Area
-builder.Services.AddSingleton<CustomerCollection>();
-builder.Services.AddSingleton<BookCollection>();
-builder.Services.AddSingleton<ReservationCollection>();
+
+builder.Services.AddDbContextFactory<AppDbContext>(options =>
+{
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+    );
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -50,4 +60,3 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.Run();
-

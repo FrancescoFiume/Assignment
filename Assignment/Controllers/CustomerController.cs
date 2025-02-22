@@ -1,9 +1,9 @@
 using System.Reflection;
 using Assignment.CustomExceptions;
 using Assignment.Data.Collections;
-using Assignment.Data.Models;
 using Assignment.DataCheck;
 using Assignment.DataCheck.Checks.CustomerChecks;
+using Assignment.Db.Models;
 using Assignment.DTO;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,16 +18,18 @@ public class CustomerController : ControllerBase
 {
     private readonly CustomerCollection _customerCollection;
     private readonly ILogger<CustomerController> _logger;
+    private readonly EmailChecker _emailChecker;
 
     /// <summary>
     /// Constructor
     /// </summary>
     /// <param name="customerCollection">Dependency Injected customer Collection</param>
     /// <param name="logger">Dependency Injected logger</param>
-    public CustomerController(CustomerCollection customerCollection, ILogger<CustomerController> logger)
+    public CustomerController(CustomerCollection customerCollection, ILogger<CustomerController> logger, EmailChecker emailChecker)
     {
         _customerCollection = customerCollection;
         _logger = logger;
+        _emailChecker = emailChecker;
     }
 
     /// <summary>
@@ -106,7 +108,7 @@ public class CustomerController : ControllerBase
     ///Duplicated or invalid mail, or something whent wrong, read the response body
     /// </response>
     [HttpPost]
-    public IActionResult Add(NewCustomer newCustomer)
+    public async Task<IActionResult> Add(NewCustomer newCustomer, CancellationToken cancellationToken)
     {
         try
         {
@@ -118,7 +120,18 @@ public class CustomerController : ControllerBase
             };
             HandleEmailValidation(newCustomerData);
             var newAcc = _customerCollection.Add(newCustomerData);
-            return Created("redirectLink", newAcc);
+
+            await _emailChecker.CheckMailAsync(
+                email: newCustomer.Email,
+                modelState: ModelState,
+                cancellationToken: cancellationToken
+            );
+
+            if (!ModelState.IsValid)
+                return ValidationProblem();
+            
+            return Created("", newAcc);
+            
             //If this were an actual registration this should have returned
             //1) Id
             //2)Redirect page (The redirected page is a static page asking for mail to be verified.
